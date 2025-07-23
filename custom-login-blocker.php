@@ -8,6 +8,30 @@
 
 defined('ABSPATH') || exit;
 
+
+// Register primary navigation menu location
+add_action('after_setup_theme', function () {
+    register_nav_menu('primary', __('Primary Navigation'));
+});
+
+add_filter('wp_nav_menu_items', 'custom_add_user_icon_nav_item', 10, 2);
+
+function custom_add_user_icon_nav_item($items, $args) {
+    if (!is_user_logged_in() || $args->theme_location !== 'primary') {
+        return $items;
+    }
+
+    $current_user = wp_get_current_user();
+    $logout_url = wp_logout_url(home_url());
+
+    $user_icon = '<span class="user-icon">👤</span>';
+    $logout_button = '<a class="logout-button" href="' . esc_url($logout_url) . '">Log out</a>';
+
+    $custom_item = '<li class="menu-item user-logout-nav">' . $user_icon . $logout_button . '</li>';
+
+    return $items . $custom_item;
+}
+
 // Front-end login form
 add_shortcode('custom_login_form', function() {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['log'], $_POST['pwd'])) {
@@ -167,3 +191,4 @@ add_action('wp_footer', function () {
     </div>
     <?php
 });
+
